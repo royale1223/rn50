@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reunion 50 ’26</title>
+    <link rel="stylesheet" href="styles.css?v=20260208-1" />
+  <!-- Bungee font is self-hosted under assets/fonts -->
+  </head>
+  <body>
+    <div id="app">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand__title">Reunion 50 ’26</div>
+          <div class="brand__subtitle">50th Batch • Calicut Medical College</div>
+        </div>
+        <div class="topbar__right">
+          <div id="slideCounter" class="counter">1 / 5</div>
+        </div>
+      </div>
+
+      <main class="deck" aria-label="Slideshow">
+        <!-- Slide 1: Title -->
+        <section class="slide is-active" data-slide="1" data-title="Title">
+          <div class="hero">
+            <video
+              class="hero__bg"
+              id="heroVideo"
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="none"
+              poster="assets/hero-poster.jpg"
+              disablepictureinpicture
+              controlslist="nodownload noplaybackrate"
+            >
+              <source src="assets/hero-video-v4.mp4" type="video/mp4" />
+            </video>
+            <div class="hero__overlay"></div>
+            <div class="hero__content">
+              <div class="pill">Presentation</div>
+              <h1>Reunion 50 ’26</h1>
+              <p class="lead">Venue selection • shortlist • vote</p>
+              <div class="hint">Swipe left/right (or use Next)</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 2: Kadavu -->
+        <section class="slide" data-slide="2" data-title="Kadavu, Calicut">
+          <div class="slide__content">
+            <header class="slide__header">
+              <h2>The Raviz Kadavu, Calicut</h2>
+              <p class="muted">A legendary chapter in our history.</p>
+            </header>
+
+            <div class="mediaStrip" aria-label="Kadavu photos">
+              <div class="mediaItem">
+                <img src="assets/kadavu.jpg" class="mediaCard mediaCard--img" alt="Raviz Kadavu" loading="lazy">
+                <div class="mediaItem__counter">1/4</div>
+              </div>
+              <div class="mediaItem">
+                <img src="assets/kadavu2.jpg" class="mediaCard mediaCard--img" alt="Raviz Kadavu" loading="lazy">
+                <div class="mediaItem__counter">2/4</div>
+              </div>
+              <div class="mediaItem">
+                <img src="assets/kadavu3.jpg" class="mediaCard mediaCard--img" alt="Raviz Kadavu" loading="lazy">
+                <div class="mediaItem__counter">3/4</div>
+              </div>
+              <div class="mediaItem">
+                <img src="assets/kadavu4.jpg" class="mediaCard mediaCard--img" alt="Raviz Kadavu" loading="lazy">
+                <div class="mediaItem__counter">4/4</div>
+              </div>
+            </div>
+
+            <div class="textCard">
+              <p style="margin-bottom:12px; line-height:1.5;">Reflecting on our incredible 2022 gathering, The Raviz Kadavu in Calicut remains a legendary chapter in our reunion history. The seamless blend of Malabar hospitality and the Nila riverfront provided a backdrop that was, quite frankly, magical.</p>
+              <h3>The Kadavu Experience</h3>
+              <ul>
+                <li><strong>Premium Standard:</strong> With an average cost of ₹15,500 per family (₹11,500 for the room + ₹4,000 for food), Kadavu offers a high-end, luxury experience that we know guarantees quality.</li>
+                <li><strong>The Nostalgia Factor:</strong> There is no denying the comfort of returning to a place where we’ve already made great memories; the service and atmosphere are tried and tested.</li>
+                <li><strong>The "Repetition" Concern:</strong> While the venue is world-class, we should be mindful of the repetition effect. Having hosted our 2022 event there, we want to ensure each reunion feels like a brand-new adventure rather than a sequel.</li>
+              </ul>
+              <p style="margin-top:12px; line-height:1.5;">Kadavu is a gold standard for us, but our current challenge is balancing that guaranteed "magic" against the desire for a fresh environment.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 3: Vythiri -->
+        <section class="slide" data-slide="3" data-title="Vythiri Village, Wayanad">
+          <div class="slide__content">
+            <header class="slide__header">
+              <h2>Vythiri Village, Wayanad</h2>
+              <p class="muted">A nature retreat in the hills.</p>
+            </header>
+
+            <div class="mediaStrip" aria-label="Vythiri photos">
+              <div class="mediaItem">
+                <img src="assets/vythiri.jpg" class="mediaCard mediaCard--img" alt="Vythiri Village" loading="lazy">
+                <div class="mediaItem__counter">1/4</div>
+              </div>
+              <div class="mediaItem">
+                <img src="assets/vythiri2.jpg" class="mediaCard mediaCard--img" alt="Vythiri Village" loading="lazy">
+                <div class="mediaItem__counter">2/4</div>
+              </div>
+              <div class="mediaItem">
+                <img src="assets/vythiri3.jpg" class="mediaCard mediaCard--img" alt="Vythiri Village" loading="lazy">
+                <div class="mediaItem__counter">3/4</div>
+              </div>
+              <div class="mediaItem">
+                <img src="assets/vythiri4.jpg" class="mediaCard mediaCard--img" alt="Vythiri Village" loading="lazy">
+                <div class="mediaItem__counter">4/4</div>
+              </div>
+            </div>
+
+            <div class="textCard">
+              <p style="margin-bottom:12px; line-height:1.5;">Nestled in the lush rainforests of Wayanad, Vythiri Village offers a serene escape into nature. This option includes a nostalgic group bus trip starting from our alma mater, Calicut Medical College.</p>
+              <h3>The Vythiri Experience</h3>
+              <ul>
+                <li><strong>The Journey:</strong> A collective bus trip from Calicut Medical College to Wayanad (~₹2,000/head for transport).</li>
+                <li><strong>Estimated Cost:</strong> Approx ₹12,000–₹14,000 per family (including stay + food + transport). A premium nature resort experience.</li>
+                <li><strong>Ambience:</strong> Cool climate, mist-covered hills, and a relaxing, extended-stay vibe away from the city.</li>
+              </ul>
+              <h3>Challenges to Consider</h3>
+              <ul>
+                <li><strong>Accessibility & The Churam:</strong> The ghat road (Thamarassery Churam) can be unpredictable with traffic blocks, potentially delaying travel.</li>
+                <li><strong>Monsoon Risks:</strong> Wayanad heavy rains could impact outdoor activities and travel comfort.</li>
+                <li><strong>Logistics:</strong> Moving a large group up the hills is more complex compared to city/coastal venues.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 4: Bolgatty -->
+        <section class="slide" data-slide="4" data-title="KTDC Bolgatty">
+          <div class="slide__content">
+            <header class="slide__header">
+              <h2>Bolgatty Palace, Kochi</h2>
+              <p class="muted">Heritage and magic on a historic island.</p>
+            </header>
+
+            <div class="mediaStrip" aria-label="Bolgatty photos">
+              <div class="mediaItem">
+                <img src="assets/bolgatty4.jpg" class="mediaCard mediaCard--img" alt="Bolgatty Palace" loading="lazy">
+                <div class="mediaItem__counter">1/4</div>
+              </div>
+              <div class="mediaItem">
+                <img src="assets/bolgatty2.jpg" class="mediaCard mediaCard--img" alt="Bolgatty Palace" loading="lazy">
+                <div class="mediaItem__counter">2/4</div>
+              </div>
+              <div class="mediaItem">
+                <img src="assets/bolgatty3.jpg" class="mediaCard mediaCard--img" alt="Bolgatty Palace" loading="lazy">
+                <div class="mediaItem__counter">3/4</div>
+              </div>
+              <div class="mediaItem">
+                <img src="assets/bolgatty.jpg" class="mediaCard mediaCard--img" alt="Bolgatty Palace" loading="lazy">
+                <div class="mediaItem__counter">4/4</div>
+              </div>
+            </div>
+
+            <div class="textCard">
+              <p style="margin-bottom:12px; line-height:1.5;">Bolgaty palace , is one highly recommended property as our venue. Set on a historic island amidst the serene Kochi backwaters, it offers a unique blend of heritage and "magic" that we believe is essential for this milestone gathering.</p>
+              <h3>Why Bolgatty Palace?</h3>
+              <ul>
+                <li><strong>Unbeatable Value:</strong> At an average cost of ₹8300 per family (₹5,500 for the room + ₹2,800 for dinner) + GST, this option is approximately ₹3,000 cheaper than any other venue of comparable caliber, without compromising on the premium ambience we deserve.</li>
+                <li><strong>Fresh Experience:</strong> To avoid the "repetition effect," we are steering away from past locations like Kadavu Resort, Calicut (2022).</li>
+                <li><strong>Logistical Ease:</strong> Unlike Vythiri Village in Wayanad, which presents significant logistical risks for a group of our size, Bolgatty is easily accessible while remaining secluded.</li>
+              </ul>
+              <p style="margin-top:12px; line-height:1.5;">We truly feel that we need the charm of Bolgatty to recreate the magic of our college days and the last reunion.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 5: Poll -->
+        <section class="slide" data-slide="5" data-title="Vote">
+          <div class="slide__content">
+            <header class="slide__header">
+              <h2>Vote for your preferred venue</h2>
+              <p class="muted">One tap to vote. Results update live.</p>
+            </header>
+
+            <div class="poll">
+              <div id="userNameBanner" class="userBanner" hidden></div>
+              <div class="poll__status" id="pollStatus">Loading results…</div>
+
+              <div class="authGate" id="authGate">
+                <div class="authCard">
+                  <h3>Verify to vote</h3>
+                  <p class="muted">Enter your name and phone. We'll send a 6‑digit OTP by SMS.</p>
+
+                  <div class="field">
+                    <label>Name</label>
+                    <input id="authName" type="text" placeholder="Your name" autocomplete="name" />
+                  </div>
+
+                  <div class="field">
+                    <label>Phone</label>
+                    <input id="authPhone" type="tel" placeholder="+91… or 10-digit" autocomplete="tel" />
+                  </div>
+
+                  <button id="sendOtpBtn" class="navBtn navBtn--primary" type="button">Send OTP</button>
+
+                  <div id="otpSection" class="otpSection" hidden>
+                    <div class="field">
+                      <label>OTP</label>
+                      <input id="authOtp" type="text" inputmode="numeric" pattern="\d{6}" placeholder="6-digit OTP" />
+                    </div>
+                    <button id="verifyOtpBtn" class="navBtn navBtn--primary" type="button">Verify</button>
+                    <button id="resendOtpBtn" class="navBtn" type="button">Resend</button>
+                  </div>
+
+                  <div id="authMsg" class="poll__status">Not verified yet.</div>
+                </div>
+              </div>
+
+              <h3 style="margin:8px 0 0;">Venue poll</h3>
+              <div class="poll__options" role="group" aria-label="Venue options">
+                <button class="pollBtn" data-kind="venue" data-option="kadavu" disabled>Kadavu, Calicut</button>
+                <button class="pollBtn" data-kind="venue" data-option="vythiri" disabled>Vythiri Village, Wayanad</button>
+                <button class="pollBtn" data-kind="venue" data-option="bolgatty" disabled>KTDC Bolgatty</button>
+              </div>
+
+              <div class="results" aria-label="Venue poll results">
+                <div class="resultRow">
+                  <div class="resultRow__label">Kadavu</div>
+                  <div class="bar"><div id="bar-kadavu" class="bar__fill"></div></div>
+                  <div id="count-kadavu" class="resultRow__count">0</div>
+                </div>
+                <div class="resultRow">
+                  <div class="resultRow__label">Vythiri</div>
+                  <div class="bar"><div id="bar-vythiri" class="bar__fill"></div></div>
+                  <div id="count-vythiri" class="resultRow__count">0</div>
+                </div>
+                <div class="resultRow">
+                  <div class="resultRow__label">Bolgatty</div>
+                  <div class="bar"><div id="bar-bolgatty" class="bar__fill"></div></div>
+                  <div id="count-bolgatty" class="resultRow__count">0</div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <h3 style="margin:0;">Date poll</h3>
+              <div class="poll__options" role="group" aria-label="Date options">
+                <button class="pollBtn" data-kind="date" data-option="july18_19" disabled>18–19 July</button>
+                <button class="pollBtn" data-kind="date" data-option="aug8_9" disabled>8–9 August</button>
+                <button class="pollBtn" data-kind="date" data-option="other" disabled>Other date</button>
+              </div>
+
+              <div id="otherDateWrap" class="field" style="display:none; margin-top:10px;">
+                <label>Other date (optional)</label>
+                <input id="otherDateText" type="text" placeholder="e.g., 22–23 Aug" />
+              </div>
+
+              <div class="results" aria-label="Date poll results">
+                <div class="resultRow">
+                  <div class="resultRow__label">18–19 Jul</div>
+                  <div class="bar"><div id="bar-july18_19" class="bar__fill"></div></div>
+                  <div id="count-july18_19" class="resultRow__count">0</div>
+                </div>
+                <div class="resultRow">
+                  <div class="resultRow__label">8–9 Aug</div>
+                  <div class="bar"><div id="bar-aug8_9" class="bar__fill"></div></div>
+                  <div id="count-aug8_9" class="resultRow__count">0</div>
+                </div>
+                <div class="resultRow">
+                  <div class="resultRow__label">Other</div>
+                  <div class="bar"><div id="bar-other" class="bar__fill"></div></div>
+                  <div id="count-other" class="resultRow__count">0</div>
+                </div>
+              </div>
+
+              <div class="fineprint">
+                Tip: if you accidentally tap twice, it tries to ignore immediate duplicates.
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Celebration overlay -->
+      <div id="celebrate" class="celebrate" hidden>
+        <div class="celebrate__card">
+          <div class="celebrate__title">Tata Data Tatata! Eeya Oowa 50th!</div>
+        </div>
+        <canvas id="confettiCanvas" class="celebrate__canvas" aria-hidden="true"></canvas>
+      </div>
+
+      <footer class="controls">
+        <button id="prevBtn" class="navBtn" aria-label="Previous slide">Prev</button>
+        <div class="dots" id="dots" aria-label="Slide dots"></div>
+        <button id="nextBtn" class="navBtn navBtn--primary" aria-label="Next slide">Next</button>
+      </footer>
+    </div>
+
+    <script src="app.js?v=20260209-1"></script>
+  </body>
+</html>

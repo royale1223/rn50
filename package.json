@@ -1,0 +1,20 @@
+{
+  "name": "reunion50-26",
+  "version": "1.0.0",
+  "description": "Reunion 50 ’26 slideshow + poll",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "twilio": "^5.12.1"
+  }
+}
