@@ -447,6 +447,10 @@ button.pollBtn.is-selected::after {
   z-index: 10000;
   display: grid;
   place-items: center;
+  /* Keep dialog away from mobile browser UI / home indicator */
+  padding: 14px 12px;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom));
+  padding-top: calc(14px + env(safe-area-inset-top));
 }
 .modal[hidden] { display: none !important; }
 .modal__backdrop {
@@ -458,7 +462,8 @@ button.pollBtn.is-selected::after {
 .modal__card {
   position: relative;
   width: min(560px, 92vw);
-  max-height: min(78vh, 680px);
+  /* Use dynamic viewport on mobile to avoid being pushed under browser UI */
+  max-height: min(calc(100dvh - 32px - env(safe-area-inset-bottom) - env(safe-area-inset-top)), 680px);
   display: grid;
   grid-template-rows: auto auto 1fr;
   gap: 10px;
@@ -502,6 +507,11 @@ button.pollBtn.is-selected::after {
   -webkit-overflow-scrolling: touch;
   padding: 10px 4px;
   border-top: 1px solid rgba(255,255,255,0.10);
+}
+
+/* Prefer centered dialog on Chrome Android where 100vh can be weird */
+@supports not (height: 100dvh) {
+  .modal__card { max-height: min(calc(100vh - 32px), 680px); }
 }
 .modal__item {
   padding: 10px 12px;
