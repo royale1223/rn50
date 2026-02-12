@@ -440,6 +440,84 @@ button.pollBtn.is-selected::after {
   pointer-events: none; /* allow clicks to pass through for dismiss */
 }
 
+/* --- modal (voter names) --- */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+}
+.modal[hidden] { display: none !important; }
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+}
+.modal__card {
+  position: relative;
+  width: min(560px, 92vw);
+  max-height: min(78vh, 680px);
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: radial-gradient(900px 500px at 20% 10%, rgba(124, 92, 255, 0.18), transparent 55%),
+              radial-gradient(700px 520px at 80% 30%, rgba(61, 214, 208, 0.14), transparent 55%),
+              rgba(15,18,32,0.92);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+}
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.modal__title { font-weight: 900; font-size: 16px; letter-spacing: 0.2px; }
+.modal__count { color: rgba(255,255,255,0.65); font-size: 12px; margin-top: 2px; }
+.modal__close {
+  appearance: none;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.9);
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 800;
+}
+.modal__search input {
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.20);
+  color: var(--text);
+  outline: none;
+  font-size: 14px;
+}
+.modal__list {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 4px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+.modal__item {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  margin: 8px 0;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+@media (max-width: 420px) {
+  .modal__card { width: min(560px, 94vw); padding: 12px; }
+  .modal__item { font-size: 14px; }
+}
+
 @media (min-width: 860px) {
   .mediaCard { flex-basis: 420px; }
   .slide__header h2 { font-size: 34px; }

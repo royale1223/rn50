@@ -114,12 +114,16 @@ goTo(index);
     }
   };
 
-  // try immediately
-  tryPlay();
+  // On mobile Chrome, immediately trying to autoplay can trigger a large video download
+  // and make the page feel like it's "not loading". Defer autoplay until first user gesture,
+  // and respect data-saver / slow connections.
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const saveData = !!conn?.saveData;
+  const effectiveType = String(conn?.effectiveType || "");
+  const slowNet = saveData || /(^|\b)(2g|3g|slow-2g)(\b|$)/.test(effectiveType);
 
-  // retry on first user gesture
   const once = () => {
-    tryPlay();
+    if (!slowNet) tryPlay();
     window.removeEventListener("touchstart", once);
     window.removeEventListener("click", once);
   };
@@ -265,7 +269,19 @@ async function sendOtp() {
     setAuth("OTP sent. Enter the 6-digit code.");
     sendOtpBtn.textContent = "Sent";
   } catch (e) {
-    setAuth(String(e?.message || e), "error");
+    const msg = String(e?.message || e);
+
+    // If allowlist blocks this number, treat as logged out (token is no longer valid for use)
+    if (msg.toLowerCase().includes("contact an organiser")) {
+      localStorage.removeItem("reunion50_phone_token");
+      localStorage.removeItem("reunion50_user_name");
+      document.getElementById("authGate").style.display = "block";
+      showUserName(null);
+      setVoteEnabled(false);
+      setStatus("Verification required.");
+    }
+
+    setAuth(msg, "error");
     sendOtpBtn.disabled = false;
     sendOtpBtn.textContent = originalText;
   }
@@ -295,7 +311,19 @@ async function verifyOtp() {
       setVerifiedState();
     }, 1200);
   } catch (e) {
-    setAuth(String(e?.message || e), "error");
+    const msg = String(e?.message || e);
+
+    // If allowlist blocks this number, force logout UI
+    if (msg.toLowerCase().includes("contact an organiser")) {
+      localStorage.removeItem("reunion50_phone_token");
+      localStorage.removeItem("reunion50_user_name");
+      document.getElementById("authGate").style.display = "block";
+      showUserName(null);
+      setVoteEnabled(false);
+      setStatus("Verification required.");
+    }
+
+    setAuth(msg, "error");
     verifyOtpBtn.disabled = false;
     resendOtpBtn.disabled = false;
     verifyOtpBtn.textContent = originalText;
@@ -498,6 +526,17 @@ async function fetchResults() {
     const venueTotal = updateVenueBars(j.votes);
     const dateTotal = updateDateBars(j.dateVotes);
 
+    if (j.forceLogout) {
+      localStorage.removeItem("reunion50_phone_token");
+      localStorage.removeItem("reunion50_user_name");
+      document.getElementById("authGate").style.display = "block";
+      showUserName(null);
+      setVoteEnabled(false);
+      setAuth("Not verified yet.");
+      setStatus("Verification required.");
+      return;
+    }
+
     if (j.userName) {
       localStorage.setItem("reunion50_user_name", j.userName);
       showUserName(j.userName);
@@ -517,7 +556,7 @@ async function fetchResults() {
     // mark selection (highlight should show even if not verified)
     const verified = document.getElementById("authGate").style.display === "none";
 
-    const votedV = j.votedVenue || "";
+    const votedV = Array.isArray(j.votedVenue) ? j.votedVenue : (j.votedVenue ? [j.votedVenue] : []);
     const votedD = j.votedDate || "";
 
     for (const btn of pollButtons) {
@@ -527,7 +566,7 @@ async function fetchResults() {
       // Disable buttons unless verified (but still show highlight)
       btn.disabled = !verified;
 
-      if (k === "venue" && votedV && opt === votedV) {
+      if (k === "venue" && votedV.includes(opt)) {
         btn.classList.add("is-selected");
         btn.style.border = "2px solid #4ade80";
         btn.style.background = "rgba(74, 222, 128, 0.18)";
@@ -572,13 +611,37 @@ async function fetchResults() {
   }
 }
 
+function applySelectedStyle(btn, selected) {
+  if (!btn) return;
+  if (selected) {
+    btn.classList.add("is-selected");
+    // Inline styles (defensive for iOS paint/cache quirks)
+    btn.style.border = "2px solid #4ade80";
+    btn.style.background = "rgba(74, 222, 128, 0.18)";
+  } else {
+    btn.classList.remove("is-selected");
+    btn.style.border = "1px solid var(--border)";
+    btn.style.background = "rgba(255,255,255,0.08)";
+  }
+}
+
 async function vote(kind, option) {
   // optimistic UI highlight
-  for (const b of pollButtons) {
-    if (b.dataset.kind === kind) b.classList.remove("is-selected");
+  if (kind === "date") {
+    // single-select
+    for (const b of pollButtons) {
+      if (b.dataset.kind === kind) applySelectedStyle(b, false);
+    }
+    const clicked = pollButtons.find((b) => b.dataset.kind === kind && b.dataset.option === option);
+    if (clicked) applySelectedStyle(clicked, true);
+  } else {
+    // venue: multi-select toggle
+    const clicked = pollButtons.find((b) => b.dataset.kind === kind && b.dataset.option === option);
+    if (clicked) {
+      const willSelect = !clicked.classList.contains("is-selected");
+      applySelectedStyle(clicked, willSelect);
+    }
   }
-  const clicked = pollButtons.find((b) => b.dataset.kind === kind && b.dataset.option === option);
-  if (clicked) clicked.classList.add("is-selected");
 
   // UI feedback
   pollButtons.filter(b => b.dataset.kind === kind).forEach((b) => (b.disabled = true));
@@ -653,6 +716,127 @@ function updatePollingForSlide() {
   if (atVoteSlide) startResultsPolling();
   else stopResultsPolling();
 }
+
+// --- click results to view voter names ---
+function showVoterModal({ title, names, error }) {
+  const modal = document.getElementById("voterModal");
+  const titleEl = document.getElementById("voterModalTitle");
+  const countEl = document.getElementById("voterModalCount");
+  const listEl = document.getElementById("voterModalList");
+  const closeBtn = document.getElementById("voterModalClose");
+  const searchEl = document.getElementById("voterModalSearch");
+
+  if (!modal || !titleEl || !countEl || !listEl || !closeBtn || !searchEl) {
+    // fallback to alert if modal isn't present
+    if (error) return alert(error);
+    return alert(`${title}\n\n${(names || []).join("\n")}`);
+  }
+
+  const close = () => {
+    modal.hidden = true;
+    modal.style.display = "none";
+    document.body.style.overflow = "";
+    searchEl.value = "";
+  };
+
+  // attach close handlers (idempotent)
+  closeBtn.onclick = close;
+  modal.querySelectorAll("[data-close='1']").forEach((el) => (el.onclick = close));
+
+  const all = Array.isArray(names) ? names : [];
+  titleEl.textContent = title || "Voters";
+  countEl.textContent = error ? "" : `${all.length} voter${all.length === 1 ? "" : "s"}`;
+
+  const render = () => {
+    const q = String(searchEl.value || "").trim().toLowerCase();
+    const filtered = q ? all.filter((n) => String(n).toLowerCase().includes(q)) : all;
+    listEl.innerHTML = "";
+
+    if (error) {
+      const div = document.createElement("div");
+      div.className = "modal__item";
+      div.textContent = error;
+      listEl.appendChild(div);
+      return;
+    }
+
+    if (!filtered.length) {
+      const div = document.createElement("div");
+      div.className = "modal__item";
+      div.textContent = q ? "No matches." : "No votes yet.";
+      listEl.appendChild(div);
+      return;
+    }
+
+    filtered.forEach((n) => {
+      const div = document.createElement("div");
+      div.className = "modal__item";
+      div.textContent = n;
+      listEl.appendChild(div);
+    });
+  };
+
+  searchEl.oninput = render;
+  render();
+
+  modal.hidden = false;
+  modal.style.display = "grid";
+  document.body.style.overflow = "hidden";
+
+  // Escape closes
+  const onKey = (ev) => {
+    if (ev.key === "Escape") {
+      window.removeEventListener("keydown", onKey);
+      close();
+    }
+  };
+  window.addEventListener("keydown", onKey);
+
+  // focus search for quick filtering
+  setTimeout(() => {
+    try { searchEl.focus(); } catch {}
+  }, 0);
+}
+
+async function showVoters(kind, option, label) {
+  try {
+    const r = await fetch(`/api/voters?kind=${encodeURIComponent(kind)}&option=${encodeURIComponent(option)}`);
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || "Failed");
+    const names = Array.isArray(j.names) ? j.names : [];
+    const title = `${label} (${names.length})`;
+    if (!names.length) {
+      showVoterModal({ title, names: [] });
+      return;
+    }
+    showVoterModal({ title, names });
+  } catch (e) {
+    showVoterModal({ title: "Error", names: [], error: `Could not load voter names. ${String(e?.message || e)}` });
+  }
+}
+
+function bindVoterClick(kind, option, label) {
+  const c = document.getElementById(`count-${option}`);
+  const fill = document.getElementById(`bar-${option}`);
+  const bar = fill?.parentElement || null; // easier to tap than the fill itself
+
+  const handler = () => showVoters(kind, option, label);
+  [c, bar, fill].forEach((el) => {
+    if (!el) return;
+    el.style.cursor = "pointer";
+    el.title = "Tap to view voter names";
+    el.addEventListener("click", handler);
+  });
+}
+
+// Venue
+bindVoterClick("venue", "kadavu", "Kadavu");
+bindVoterClick("venue", "vythiri", "Vythiri");
+bindVoterClick("venue", "bolgatty", "Bolgatty");
+// Date
+bindVoterClick("date", "july18_19", "18–19 Jul");
+bindVoterClick("date", "aug8_9", "8–9 Aug");
+bindVoterClick("date", "other", "Other date");
 
 // Initial + hook into navigation
 updatePollingForSlide();

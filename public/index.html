@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reunion 50 ’26</title>
-    <link rel="stylesheet" href="styles.css?v=20260208-1" />
+    <link rel="stylesheet" href="styles.css?v=20260212-2" />
   <!-- Bungee font is self-hosted under assets/fonts -->
   </head>
   <body>
@@ -35,7 +35,7 @@
               disablepictureinpicture
               controlslist="nodownload noplaybackrate"
             >
-              <source src="assets/hero-video-v4.mp4" type="video/mp4" />
+              <source src="assets/hero-video-v3.mp4" type="video/mp4" />
             </video>
             <div class="hero__overlay"></div>
             <div class="hero__content">
@@ -163,7 +163,7 @@
               <p style="margin-bottom:12px; line-height:1.5;">Bolgaty palace , is one highly recommended property as our venue. Set on a historic island amidst the serene Kochi backwaters, it offers a unique blend of heritage and "magic" that we believe is essential for this milestone gathering.</p>
               <h3>Why Bolgatty Palace?</h3>
               <ul>
-                <li><strong>Unbeatable Value:</strong> At an average cost of ₹8300 per family (₹5,500 for the room + ₹2,800 for dinner) + GST, this option is approximately ₹3,000 cheaper than any other venue of comparable caliber, without compromising on the premium ambience we deserve.</li>
+                <li><strong>Unbeatable Value:</strong> At an average cost of ₹10,300 per family (₹5,500 for the room + ₹2,800 for dinner + ₹2,000 hall charges) + GST  this option is approximately ₹2,000 cheaper than any other venue of comparable caliber, without compromising on the premium ambience we deserve.</li>
                 <li><strong>Fresh Experience:</strong> To avoid the "repetition effect," we are steering away from past locations like Kadavu Resort, Calicut (2022).</li>
                 <li><strong>Logistical Ease:</strong> Unlike Vythiri Village in Wayanad, which presents significant logistical risks for a group of our size, Bolgatty is easily accessible while remaining secluded.</li>
               </ul>
@@ -294,6 +294,24 @@
       </footer>
     </div>
 
-    <script src="app.js?v=20260209-1"></script>
+    <!-- Voter names modal (replaces browser alert; prevents cutoff on some devices) -->
+    <div id="voterModal" class="modal" hidden>
+      <div class="modal__backdrop" data-close="1"></div>
+      <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="voterModalTitle">
+        <div class="modal__header">
+          <div>
+            <div id="voterModalTitle" class="modal__title">Voters</div>
+            <div id="voterModalCount" class="modal__count">0</div>
+          </div>
+          <button id="voterModalClose" class="modal__close" type="button">Close</button>
+        </div>
+        <div class="modal__search">
+          <input id="voterModalSearch" type="text" placeholder="Search names…" />
+        </div>
+        <div id="voterModalList" class="modal__list" aria-label="Voter names"></div>
+      </div>
+    </div>
+
+    <script src="app.js?v=20260212-3"></script>
   </body>
 </html>
