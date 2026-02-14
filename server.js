@@ -76,11 +76,12 @@ let ALLOWED_PHONES = loadAllowedPhones();
 
 function isPhoneAllowed(phone) {
   if (!phone) return false;
-  // If explicitly set, allow all (useful for development only)
-  if (process.env.REUNION50_ALLOW_ALL === "true") return true;
-  // If allowlist is empty, deny by default
-  if (!ALLOWED_PHONES || ALLOWED_PHONES.size === 0) return false;
-  return ALLOWED_PHONES.has(phone);
+  return true;
+  // // If explicitly set, allow all (useful for development only)
+  // if (process.env.REUNION50_ALLOW_ALL === "true") return true;
+  // // If allowlist is empty, deny by default
+  // if (!ALLOWED_PHONES || ALLOWED_PHONES.size === 0) return false;
+  // return ALLOWED_PHONES.has(phone);
 }
 
 function ensureAuthStore() {
