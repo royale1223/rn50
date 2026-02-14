@@ -151,8 +151,7 @@ function loadFixedOtpPhones() {
 let FIXED_OTP_PHONES = loadFixedOtpPhones();
 
 function hasFixedOtp(phone) {
-  return true;
-  // return FIXED_OTP_PHONES.has(phone);
+  return FIXED_OTP_PHONES.has(phone);
 }
 
 app.get("/api/results", (req, res) => {
