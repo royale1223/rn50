@@ -16,6 +16,7 @@ export function openDb({ dataDir }) {
       verified_at TEXT
     );
 
+    -- Single-select votes (currently used for date)
     CREATE TABLE IF NOT EXISTS votes (
       phone_hash TEXT NOT NULL,
       kind TEXT NOT NULL CHECK(kind IN ('venue','date')),
@@ -23,6 +24,14 @@ export function openDb({ dataDir }) {
       other_text TEXT,
       updated_at TEXT NOT NULL,
       PRIMARY KEY (phone_hash, kind)
+    );
+
+    -- Multi-select venue votes (one user can select multiple venues)
+    CREATE TABLE IF NOT EXISTS venue_votes (
+      phone_hash TEXT NOT NULL,
+      option TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      PRIMARY KEY (phone_hash, option)
     );
 
     CREATE TABLE IF NOT EXISTS legacy_counts (
@@ -54,6 +63,15 @@ export function setLegacyCounts(db, kind, counts) {
 }
 
 export function getLiveCounts(db, kind) {
+  // Venue is multi-select in a separate table
+  if (kind === "venue") {
+    const rows = db.prepare("SELECT option, COUNT(*) as c FROM venue_votes GROUP BY option").all();
+    const out = {};
+    for (const r of rows) out[r.option] = r.c;
+    return out;
+  }
+
+  // Date (and any future kinds) remain single-select in votes
   const rows = db
     .prepare("SELECT option, COUNT(*) as c FROM votes WHERE kind=? GROUP BY option")
     .all(kind);
@@ -80,6 +98,30 @@ export function getUserVote(db, { phoneHash, kind }) {
   return db
     .prepare("SELECT option, other_text as otherText, updated_at as updatedAt FROM votes WHERE phone_hash=? AND kind=?")
     .get(phoneHash, kind);
+}
+
+export function getUserVenueVotes(db, { phoneHash }) {
+  const rows = db
+    .prepare("SELECT option FROM venue_votes WHERE phone_hash=? ORDER BY option")
+    .all(phoneHash);
+  return rows.map((r) => r.option);
+}
+
+export function toggleVenueVote(db, { phoneHash, option }) {
+  const now = new Date().toISOString();
+  const exists = db
+    .prepare("SELECT 1 FROM venue_votes WHERE phone_hash=? AND option=?")
+    .get(phoneHash, option);
+  if (exists) {
+    db.prepare("DELETE FROM venue_votes WHERE phone_hash=? AND option=?").run(phoneHash, option);
+    return { selected: false, updatedAt: now };
+  }
+  db.prepare("INSERT INTO venue_votes(phone_hash, option, updated_at) VALUES(?,?,?)").run(
+    phoneHash,
+    option,
+    now,
+  );
+  return { selected: true, updatedAt: now };
 }
 
 export function upsertUser(db, { phoneHash, name }) {

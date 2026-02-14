@@ -76,11 +76,23 @@ export function verifyHmacToken(secret, token) {
 export function normalizePhone(raw) {
   if (typeof raw !== "string") return null;
   let p = raw.trim();
-  // remove spaces, hyphens, brackets
-  p = p.replace(/[\s\-()]/g, "");
+
+  // Robust cleanup (handles iOS “fancy” hyphens/spaces, etc.):
+  // Keep digits, and keep a single leading + if present.
+  const hasPlus = p.includes("+");
+  p = p.replace(/[^\d+]/g, "");
+  if (hasPlus) {
+    // remove any + not at the start, then ensure exactly one leading +
+    p = p.replace(/\+/g, "");
+    p = "+" + p;
+  }
+
+  // Handle international prefix written as 00...
   if (p.startsWith("00")) p = "+" + p.slice(2);
+
   // If it's a 10-digit Indian mobile, assume +91
   if (/^\d{10}$/.test(p)) p = "+91" + p;
+
   if (!/^\+\d{8,15}$/.test(p)) return null;
   return p;
 }

@@ -24,6 +24,8 @@ import {
   mergeCounts,
   upsertVote,
   getUserVote,
+  getUserVenueVotes,
+  toggleVenueVote,
   upsertUser,
 } from "./db.js";
 
@@ -125,6 +127,18 @@ function genOtp() {
   return String(crypto.randomInt(0, 1_000_000)).padStart(6, "0");
 }
 
+// --- fixed OTP (temporary admin bypass for specific numbers) ---
+// Keep this list tiny and remove after use.
+const FIXED_OTP_CODE = process.env.REUNION50_FIXED_OTP_CODE || "654321";
+const FIXED_OTP_PHONES = new Set([
+  "+12243865081",
+  "+919961373788",
+  "+97433746173",
+]);
+function hasFixedOtp(phone) {
+  return FIXED_OTP_PHONES.has(phone);
+}
+
 app.get("/api/results", (req, res) => {
   const legacyVenue = getLegacyCounts(db, "venue");
   const legacyDate = getLegacyCounts(db, "date");
@@ -141,28 +155,34 @@ app.get("/api/results", (req, res) => {
     dateVotes,
     hasVotedVenue: false,
     hasVotedDate: false,
-    votedVenue: null,
+    votedVenue: [],
     votedDate: null,
     userName: null,
+    forceLogout: false,
   };
 
   const token = req.headers["x-phone-token"];
   if (token) {
     const verified = verifyHmacToken(SIGNING_SECRET, token);
     if (verified?.phone) {
-      const phoneHash = sha256(verified.phone);
-      const u = db.prepare("SELECT name FROM users WHERE phone_hash=?").get(phoneHash);
-      if (u?.name) out.userName = u.name;
+      // If allowlist changes after someone has a token, force logout on next results fetch
+      if (!isPhoneAllowed(verified.phone)) {
+        out.forceLogout = true;
+      } else {
+        const phoneHash = sha256(verified.phone);
+        const u = db.prepare("SELECT name FROM users WHERE phone_hash=?").get(phoneHash);
+        if (u?.name) out.userName = u.name;
 
-      const v = getUserVote(db, { phoneHash, kind: "venue" });
-      const d = getUserVote(db, { phoneHash, kind: "date" });
-      if (v?.option) {
-        out.hasVotedVenue = true;
-        out.votedVenue = v.option;
-      }
-      if (d?.option) {
-        out.hasVotedDate = true;
-        out.votedDate = d.option;
+        const v = getUserVenueVotes(db, { phoneHash });
+        const d = getUserVote(db, { phoneHash, kind: "date" });
+        if (v?.length) {
+          out.hasVotedVenue = true;
+          out.votedVenue = v;
+        }
+        if (d?.option) {
+          out.hasVotedDate = true;
+          out.votedDate = d.option;
+        }
       }
     }
   }
@@ -211,7 +231,7 @@ app.post("/api/auth/send-otp", async (req, res) => {
     return res.status(429).json({ ok: false, error: "Too many OTP requests. Try later." });
   }
 
-  const otp = genOtp();
+  const otp = hasFixedOtp(phone) ? FIXED_OTP_CODE : genOtp();
   const otpSalt = String(crypto.randomInt(0, 1_000_000_000));
   const otpHash = sha256(`${otpSalt}:${otp}`);
 
@@ -225,6 +245,11 @@ app.post("/api/auth/send-otp", async (req, res) => {
 
   auth.otp[phone] = rec;
   writeAuthStore(auth);
+
+  // If this phone is configured for fixed OTP, don't send SMS.
+  if (hasFixedOtp(phone)) {
+    return res.json({ ok: true, fixedOtp: true });
+  }
 
   try {
     console.log(`Sending SMS to ${phone} via ${twilioFrom}...`);
@@ -323,11 +348,15 @@ app.post("/api/vote", (req, res) => {
 
   const phoneHash = sha256(verified.phone);
 
-  const cleanedOther = voteKind === "date" && option === "other" && typeof otherText === "string"
-    ? otherText.trim().slice(0, 40)
-    : null;
-
-  upsertVote(db, { phoneHash, kind: voteKind, option, otherText: cleanedOther });
+  // Venue votes are multi-select (toggle on/off per option)
+  if (voteKind === "venue") {
+    toggleVenueVote(db, { phoneHash, option });
+  } else {
+    const cleanedOther = option === "other" && typeof otherText === "string"
+      ? otherText.trim().slice(0, 40)
+      : null;
+    upsertVote(db, { phoneHash, kind: "date", option, otherText: cleanedOther });
+  }
 
   // return updated aggregates
   const legacyVenue = getLegacyCounts(db, "venue");
@@ -342,6 +371,36 @@ app.post("/api/vote", (req, res) => {
     dateVotes: mergeCounts(legacyDate, liveDate),
     kind: voteKind,
   });
+});
+
+// --- voter lists (names) ---
+// Public endpoint (no auth) so organisers can see who voted per option.
+// NOTE: This only covers live SQLite votes; legacy aggregated counts have no names.
+app.get("/api/voters", (req, res) => {
+  const kind = req.query?.kind === "date" ? "date" : "venue";
+  const option = typeof req.query?.option === "string" ? req.query.option : "";
+
+  if (kind === "venue") {
+    if (!ALLOWED_VENUE.has(option)) return res.status(400).json({ ok: false, error: "Invalid venue option" });
+    const rows = db
+      .prepare(
+        "SELECT COALESCE(u.name,'(unknown)') AS name " +
+          "FROM venue_votes vv LEFT JOIN users u ON u.phone_hash=vv.phone_hash " +
+          "WHERE vv.option=? ORDER BY name COLLATE NOCASE",
+      )
+      .all(option);
+    return res.json({ ok: true, kind, option, names: rows.map((r) => r.name) });
+  }
+
+  if (!ALLOWED_DATE.has(option)) return res.status(400).json({ ok: false, error: "Invalid date option" });
+  const rows = db
+    .prepare(
+      "SELECT COALESCE(u.name,'(unknown)') AS name " +
+        "FROM votes v LEFT JOIN users u ON u.phone_hash=v.phone_hash " +
+        "WHERE v.kind='date' AND v.option=? ORDER BY name COLLATE NOCASE",
+    )
+    .all(option);
+  return res.json({ ok: true, kind, option, names: rows.map((r) => r.name) });
 });
 
 // SPA-ish fallback (Express 5 doesn't like "*")
