@@ -54,7 +54,7 @@ const SIGNING_SECRET = getOrCreateSecret(secretPath);
 for (const p of [secretPath, authPath, allowedPhonesPath, path.join(dataDir, "reunion50.sqlite")]) {
   try {
     if (fs.existsSync(p)) fs.chmodSync(p, 0o600);
-  } catch {}
+  } catch { }
 }
 
 // SQLite database (votes + users)
@@ -128,13 +128,27 @@ function genOtp() {
 }
 
 // --- fixed OTP (temporary admin bypass for specific numbers) ---
-// Keep this list tiny and remove after use.
 const FIXED_OTP_CODE = process.env.REUNION50_FIXED_OTP_CODE || "654321";
-const FIXED_OTP_PHONES = new Set([
-  "+12243865081",
-  "+919961373788",
-  "+97433746173",
-]);
+const fixedOtpPhonesPath = path.join(dataDir, "fixed_otp_phones.txt");
+
+function loadFixedOtpPhones() {
+  try {
+    if (!fs.existsSync(fixedOtpPhonesPath)) return new Set();
+    const content = fs.readFileSync(fixedOtpPhonesPath, "utf-8");
+    const lines = content.split("\n").map(line => line.trim()).filter(Boolean);
+    const set = new Set();
+    for (const phone of lines) {
+      if (phone.startsWith("+")) set.add(phone);
+    }
+    return set;
+  } catch (e) {
+    console.error("Error loading fixed OTP phones:", e);
+    return new Set();
+  }
+}
+
+let FIXED_OTP_PHONES = loadFixedOtpPhones();
+
 function hasFixedOtp(phone) {
   return FIXED_OTP_PHONES.has(phone);
 }
@@ -385,8 +399,8 @@ app.get("/api/voters", (req, res) => {
     const rows = db
       .prepare(
         "SELECT COALESCE(u.name,'(unknown)') AS name " +
-          "FROM venue_votes vv LEFT JOIN users u ON u.phone_hash=vv.phone_hash " +
-          "WHERE vv.option=? ORDER BY name COLLATE NOCASE",
+        "FROM venue_votes vv LEFT JOIN users u ON u.phone_hash=vv.phone_hash " +
+        "WHERE vv.option=? ORDER BY name COLLATE NOCASE",
       )
       .all(option);
     return res.json({ ok: true, kind, option, names: rows.map((r) => r.name) });
@@ -396,8 +410,8 @@ app.get("/api/voters", (req, res) => {
   const rows = db
     .prepare(
       "SELECT COALESCE(u.name,'(unknown)') AS name " +
-        "FROM votes v LEFT JOIN users u ON u.phone_hash=v.phone_hash " +
-        "WHERE v.kind='date' AND v.option=? ORDER BY name COLLATE NOCASE",
+      "FROM votes v LEFT JOIN users u ON u.phone_hash=v.phone_hash " +
+      "WHERE v.kind='date' AND v.option=? ORDER BY name COLLATE NOCASE",
     )
     .all(option);
   return res.json({ ok: true, kind, option, names: rows.map((r) => r.name) });

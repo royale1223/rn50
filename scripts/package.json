@@ -1,0 +1,8 @@
+{
+    "name": "reunion50-scripts",
+    "type": "module",
+    "scripts": {
+        "add-allowed": "node add-allowed-phone.js",
+        "add-fixed-otp": "node add-fixed-otp-phone.js"
+    }
+}
